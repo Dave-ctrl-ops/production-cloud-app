@@ -186,3 +186,35 @@ def test_update_task_rejects_long_description():
     )
 
     assert response.status_code == 422
+
+def test_initial_migration_recorded():
+    import psycopg
+    import os
+
+    connection = psycopg.connect(
+        dbname=os.getenv("POSTGRES_DB"),
+        user=os.getenv("POSTGRES_USER"),
+        password=os.getenv("POSTGRES_PASSWORD"),
+        host=os.getenv("POSTGRES_HOST", "postgres"),
+    )
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT version, filename
+                FROM schema_migrations
+                WHERE version = %s
+                """,
+                ("001_create_tasks",),
+            )
+
+            migration = cursor.fetchone()
+
+        assert migration == (
+            "001_create_tasks",
+            "001_create_tasks.sql",
+        )
+
+    finally:
+        connection.close()

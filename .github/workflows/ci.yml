@@ -56,9 +56,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Create database table
-        run: |
-          python -c "import psycopg; conn=psycopg.connect(dbname='takeoff_db', user='takeoff_app', password='ci_test_password', host='localhost'); cur=conn.cursor(); cur.execute('CREATE TABLE IF NOT EXISTS tasks (id SERIAL PRIMARY KEY, title TEXT NOT NULL, description TEXT, completed BOOLEAN DEFAULT FALSE)'); conn.commit(); cur.close(); conn.close()"
+      - name: Run database migrations
+        run: python migration_runner.py
 
       - name: Run tests
         run: pytest
