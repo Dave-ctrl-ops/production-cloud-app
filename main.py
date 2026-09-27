@@ -5,6 +5,14 @@ from database import get_connection
 app = FastAPI()
 
 
+@app.get("/health")
+def health_check():
+    connection = get_connection()
+    connection.close()
+
+    return {"status": "healthy"}
+
+
 class Task(BaseModel):
     title: str = Field(min_length=1, max_length=100)
     description: str = Field(max_length=500)
