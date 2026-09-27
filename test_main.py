@@ -11,8 +11,20 @@ def test_get_tasks():
 
 
 def test_update_task():
+    create_response = client.post(
+        "/tasks",
+        json={
+            "title": "Test Task",
+            "description": "Task created for update test"
+        }
+    )
+
+    assert create_response.status_code == 200
+
+    task_id = create_response.json()[0]
+
     response = client.put(
-        "/tasks/4",
+        f"/tasks/{task_id}",
         json={
             "title": "Learn Kubernetes",
             "description": "Understand deployments and services",
@@ -22,7 +34,7 @@ def test_update_task():
 
     assert response.status_code == 200
     assert response.json() == [
-        4,
+        task_id,
         "Learn Kubernetes",
         "Understand deployments and services",
         True
