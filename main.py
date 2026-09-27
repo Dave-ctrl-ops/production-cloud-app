@@ -1,19 +1,39 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from database import get_connection
 
 app = FastAPI()
 
 
 class Task(BaseModel):
-    title: str
-    description: str
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(max_length=500)
+
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, value: str) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Title cannot be empty or whitespace")
+
+        return value
 
 
 class TaskUpdate(BaseModel):
-    title: str
-    description: str
+    title: str = Field(min_length=1, max_length=100)
+    description: str = Field(max_length=500)
     completed: bool
+
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, value: str) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Title cannot be empty or whitespace")
+
+        return value
 
 
 @app.get("/tasks")

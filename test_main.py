@@ -98,3 +98,83 @@ def test_delete_task_not_found():
     assert response.json() == {
         "detail": "Task not found"
     }
+
+
+def test_create_task_rejects_empty_title():
+
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "",
+            "description": "This should be rejected"
+        }
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_task_rejects_whitespace_title():
+
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "     ",
+            "description": "This should be rejected"
+        }
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_task_rejects_title_over_100_characters():
+
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "A" * 101,
+            "description": "This title is too long"
+        }
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_task_rejects_description_over_500_characters():
+
+    response = client.post(
+        "/tasks",
+        json={
+            "title": "Valid Task",
+            "description": "A" * 501
+        }
+    )
+
+    assert response.status_code == 422
+
+
+def test_update_task_rejects_invalid_title():
+
+    response = client.put(
+        "/tasks/999999",
+        json={
+            "title": "",
+            "description": "Invalid update",
+            "completed": False
+        }
+    )
+
+    assert response.status_code == 422
+
+
+def test_update_task_rejects_long_description():
+
+    response = client.put(
+        "/tasks/999999",
+        json={
+            "title": "Valid Title",
+            "description": "A" * 501,
+            "completed": False
+        }
+    )
+
+    assert response.status_code == 422
